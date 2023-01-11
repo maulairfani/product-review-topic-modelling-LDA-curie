@@ -1,19 +1,25 @@
 import openai
 
-def generate_text(nama_produk, topic, key='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'):
-    openai.api_key = key
+def generate_prompt(nama_produk, jumlah_rating, topic):
+    prompt = {
+    'nama_produk': nama_produk,
+    'jumlah_rating': jumlah_rating,
+    'topic' : topic
+    }
+    prompt = str(prompt)[17:-3] + ' ->'
 
-    prompt = f"""nama produk : {nama_produk}
-    topik : {topic}
+    return prompt
 
-    buatkan 1 paragraf yang menggambarkan produk tersebut berdasarkan hasil topik dari model LDA. Topik tersebut dihasilkan dari analisis review-review yang diberikan oleh pelanggan di sebuah marketplace. Anggap bahwa yang membaca paragraf ini adalah orang awam, dan berikan informasi yang relevan dan sesuai dengan topik tersebut. Tulislah dengan gaya yang kreatif dan mudah dipahami. 
-    """
-    completions = openai.Completion.create(
-        engine="text-davinci-003",
+def generate_text(nama_produk, jumlah_rating, topic, api_key = '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'):
+    openai.api_key = api_key
+
+    prompt = generate_prompt(nama_produk, jumlah_rating, topic)
+    completion = openai.Completion.create(
+        engine='curie:ft-personal:review-product-fine-tuned-model-2023-01-11-15-03-00',
         prompt=prompt,
-        max_tokens=500,
+        max_tokens=700,
         n=1,
-        stop=None,
         temperature=0,
+        stop=[". END"]
     )
-    return completions
+    return completion
